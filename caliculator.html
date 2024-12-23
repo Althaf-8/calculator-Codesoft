@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f8f8;
+            color: #fff;
+            background: url('./mathematics-hearts.jpg');
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .calculator {
+            width: 320px;
+            background: url('./mathematics-hearts.jpg') no-repeat center center;
+            background-size: cover;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+
+        .display {
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: right;
+            padding: 20px;
+            font-size: 2.5em;
+            height: 80px;
+            overflow: hidden;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        button {
+            height: 80px;
+            font-size: 1.5em;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button.number {
+            background: #333;
+            color: white;
+        }
+
+        button.operator {
+            background: #ff9500;
+            color: white;
+        }
+
+        button.operator:hover {
+            background: #ffad33;
+        }
+
+        button.clear {
+            background: #d62828;
+            color: white;
+        }
+
+        button.equal {
+            background: #ff9500;
+            color: white;
+            grid-column: span 2;
+        }
+
+        button:hover {
+            filter: brightness(1.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="clear">AC</button>
+            <button class="operator">+/-</button>
+            <button class="operator">%</button>
+            <button class="operator">÷</button>
+            <button class="number">7</button>
+            <button class="number">8</button>
+            <button class="number">9</button>
+            <button class="operator">×</button>
+            <button class="number">4</button>
+            <button class="number">5</button>
+            <button class="number">6</button>
+            <button class="operator">-</button>
+            <button class="number">1</button>
+            <button class="number">2</button>
+            <button class="number">3</button>
+            <button class="operator">+</button>
+            <button class="number" style="grid-column: span 2;">0</button>
+            <button class="number">.</button>
+            <button class="equal">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById("display");
+        const buttons = document.querySelectorAll("button");
+
+        let currentInput = "0";
+        let previousInput = null;
+        let operator = null;
+        let resultCalculated = false;
+
+        function updateDisplay(value) {
+            display.textContent = value;
+        }
+
+        buttons.forEach(button => {
+            button.addEventListener("click", () => {
+                const value = button.textContent;
+
+                if (value === "AC") {
+                    currentInput = "0";
+                    previousInput = null;
+                    operator = null;
+                    resultCalculated = false;
+                    updateDisplay(currentInput);
+                    return;
+                }
+
+                if (value === "+/-") {
+                    currentInput = (parseFloat(currentInput) * -1).toString();
+                    updateDisplay(currentInput);
+                    return;
+                }
+
+                if (value === "%") {
+                    currentInput = (parseFloat(currentInput) / 100).toString();
+                    updateDisplay(currentInput);
+                    return;
+                }
+
+                if (!isNaN(value) || value === ".") {
+                    if (resultCalculated) {
+                        currentInput = value === "." ? "0." : value;
+                        resultCalculated = false;
+                    } else {
+                        if (value === "." && currentInput.includes(".")) return;
+                        currentInput = currentInput === "0" ? value : currentInput + value;
+                    }
+                    updateDisplay(currentInput);
+                    return;
+                }
+
+                if (["+", "-", "×", "÷"].includes(value)) {
+                    if (previousInput && currentInput && operator) {
+                        currentInput = calculate(previousInput, currentInput, operator).toString();
+                    }
+                    operator = value;
+                    previousInput = currentInput;
+                    currentInput = "";
+                    updateDisplay(previousInput + " " + operator); // Display the operation
+                    return;
+                }
+
+                if (value === "=") {
+                    if (previousInput && operator) {
+                        currentInput = calculate(previousInput, currentInput, operator).toString();
+                        previousInput = null;
+                        operator = null;
+                        resultCalculated = true;
+                        updateDisplay(currentInput);
+                    }
+                    return;
+                }
+            });
+        });
+
+        function calculate(a, b, operator) {
+            a = parseFloat(a);
+            b = parseFloat(b);
+            switch (operator) {
+                case "+": return a + b;
+                case "-": return a - b;
+                case "×": return a * b;
+                case "÷": return b === 0 ? "Error" : a / b;
+                default: return b;
+            }
+        }
+    </script>
+</body>
+
+</html>
